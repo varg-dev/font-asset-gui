@@ -70,10 +70,9 @@ class Renderer extends gloperate.Renderer {
         this._camera = new gloperate.Camera();
         this._camera.center = gloperate.vec3.fromValues(0.0, 0.0, 0.0);
         this._camera.up = gloperate.vec3.fromValues(0.0, 1.0, 0.0);
-        this._camera.eye = gloperate.vec3.fromValues(0.0, 0.0, 5.0);
+        this._camera.eye = gloperate.vec3.fromValues(0.0, 0.0, 4.0);
         this._camera.near = 1.0;
-        this._camera.far = 8.0;
-
+        this._camera.far = 16.0;
 
         this._navigation = new gloperate.Navigation(callback, eventProvider);
         this._navigation.camera = this._camera;
@@ -94,73 +93,73 @@ class Renderer extends gloperate.Renderer {
         this._blit.drawBuffer = gl.BACK;
 
 
-        // this._labelPass = new gloperate.LabelRenderPass(context);
-        // this._labelPass.initialize();
-        // this._labelPass.camera = this._camera;
-        // this._labelPass.target = this._defaultFBO;
-        // this._labelPass.depthMask = true;
-        // this._labelPass.aaStepScale = 0.5;
-        // this._labelPass.aaSampling = gloperate.LabelRenderPass.Sampling.Grid4x4;
-        // this._labelPass.depthFunc = context.gl.LESS;
+        this._labelPass = new gloperate.LabelRenderPass(context);
+        this._labelPass.initialize();
+        this._labelPass.camera = this._camera;
+        this._labelPass.target = this._intermediateFBO;
+        this._labelPass.depthMask = true;
+        this._labelPass.aaStepScale = 0.5;
+        this._labelPass.aaSampling = gloperate.LabelRenderPass.Sampling.Grid4x4;
+        this._labelPass.depthFunc = context.gl.LESS;
 
-        // gloperate.FontFace.fromFile('./assets/roboto.fnt', context)
-        //     .then((fontFace) => {
+        gloperate.FontFace.fromFile('roboto-test.fnt', context)
+            .then((fontFace) => {
 
-        //         // >> CHANGE LABELING TEXTS, POSITIONS, COLOR, AND MORE HERE:
-        //         // >> note: dynamic labels need to altered manually... (see on Frame)
+                // >> CHANGE LABELING TEXTS, POSITIONS, COLOR, AND MORE HERE:
+                // >> note: dynamic labels need to altered manually... (see on Frame)
 
-        //         var labels = new Array(3);
+                var labels = new Array(1);
 
-        //         labels[0] = new gloperate.Position3DLabel(new gloperate.Text('Scatterplot'), gloperate.Label.Type.Static);
-        //         labels[0].lineAnchor = gloperate.Label.LineAnchor.Bottom;
-        //         labels[0].alignment = gloperate.Label.Alignment.Center;
-        //         labels[0].position = [0.0, 0.0, 0.0];
-        //         labels[0].direction = [1.0, 1.0, -1.0];
-        //         labels[0].up = [-1.5, 0.5, -1.0];
-        //         labels[0].fontSize = 0.3;
-        //         labels[0].fontSizeUnit = gloperate.Label.Unit.World;
-        //         labels[0].color.fromHex('#ffffff');
+                labels[0] = new gloperate.Position3DLabel(new gloperate.Text('foobar'), gloperate.Label.Type.Static);
+                labels[0].lineAnchor = gloperate.Label.LineAnchor.Bottom;
+                labels[0].alignment = gloperate.Label.Alignment.Center;
+                labels[0].position = [0.0, 0.0, 0.0];
+                labels[0].direction = [1.0, 0.0, 0.0];
+                labels[0].up = [0.0, 1.0, 0.0];
+                labels[0].fontSize = 0.3;
+                labels[0].fontSizeUnit = gloperate.Label.Unit.World;
+                labels[0].color.fromHex('#ffffff');
 
-        //         // labels[1] = new gloperate.Position3DLabel(new gloperate.Text('3D'), gloperate.Label.Type.Static);
-        //         // labels[1].lineAnchor = gloperate.Label.LineAnchor.Top;
-        //         // labels[1].alignment = gloperate.Label.Alignment.Center;
-        //         // labels[1].position = [-0.1, 0.2, 0.0];
-        //         // labels[1].direction = [1.0, 1.0, -1.0];
-        //         // labels[1].up = [-0.5, 1.5, +1.0];
-        //         // labels[1].fontSize = 1.2;
-        //         // labels[1].fontSizeUnit = gloperate.Label.Unit.World;
-        //         // labels[1].color.fromHex('#888888');
+                // labels[1] = new gloperate.Position3DLabel(new gloperate.Text('3D'), gloperate.Label.Type.Static);
+                // labels[1].lineAnchor = gloperate.Label.LineAnchor.Top;
+                // labels[1].alignment = gloperate.Label.Alignment.Center;
+                // labels[1].position = [-0.1, 0.2, 0.0];
+                // labels[1].direction = [1.0, 1.0, -1.0];
+                // labels[1].up = [-0.5, 1.5, +1.0];
+                // labels[1].fontSize = 1.2;
+                // labels[1].fontSizeUnit = gloperate.Label.Unit.World;
+                // labels[1].color.fromHex('#888888');
 
-        //         // labels[2] = new gloperate.Position3DLabel(new gloperate.Text('Probably the x-Axis'), gloperate.Label.Type.Static);
-        //         // labels[2].lineAnchor = gloperate.Label.LineAnchor.Bottom;
-        //         // labels[2].alignment = gloperate.Label.Alignment.Center;
-        //         // labels[2].position = [0.0, -1.1, -1.1];
-        //         // labels[2].up = [0.0, 0.0, -1.0];
-        //         // labels[2].direction = [1.0, 0.0, 0.0];
-        //         // labels[2].fontSize = 0.2;
-        //         // labels[2].fontSizeUnit = gloperate.Label.Unit.World;
-        //         // labels[2].color.fromHex('#ff00ff');
+                // labels[2] = new gloperate.Position3DLabel(new gloperate.Text('Probably the x-Axis'), gloperate.Label.Type.Static);
+                // labels[2].lineAnchor = gloperate.Label.LineAnchor.Bottom;
+                // labels[2].alignment = gloperate.Label.Alignment.Center;
+                // labels[2].position = [0.0, -1.1, -1.1];
+                // labels[2].up = [0.0, 0.0, -1.0];
+                // labels[2].direction = [1.0, 0.0, 0.0];
+                // labels[2].fontSize = 0.2;
+                // labels[2].fontSizeUnit = gloperate.Label.Unit.World;
+                // labels[2].color.fromHex('#ff00ff');
 
-        //         // labels[3] = new gloperate.Projected3DLabel(new gloperate.Text('   Point'), gloperate.Label.Type.Dynamic);
-        //         // labels[3].lineAnchor = gloperate.Label.LineAnchor.Bottom;
-        //         // labels[3].alignment = gloperate.Label.Alignment.Left;
-        //         // labels[3].position = [-1.0, +1.0, +1.0];
-        //         // labels[3].fontSize = 16.0;
-        //         // labels[3].fontSizeUnit = gloperate.Label.Unit.Mixed;
-        //         // labels[3].color.fromHex('#00ffff');
+                // labels[3] = new gloperate.Projected3DLabel(new gloperate.Text('   Point'), gloperate.Label.Type.Dynamic);
+                // labels[3].lineAnchor = gloperate.Label.LineAnchor.Bottom;
+                // labels[3].alignment = gloperate.Label.Alignment.Left;
+                // labels[3].position = [-1.0, +1.0, +1.0];
+                // labels[3].fontSize = 16.0;
+                // labels[3].fontSizeUnit = gloperate.Label.Unit.Mixed;
+                // labels[3].color.fromHex('#00ffff');
 
-        //         for (var label of labels) {
-        //             label.fontFace = fontFace;
-        //         }
-        //         this._labelPass.labels = labels;
-        //         this._labelPass.update();
+                for (var label of labels) {
+                    label.fontFace = fontFace;
+                }
+                this._labelPass.labels = labels;
+                this._labelPass.update();
 
-        //         this._labels = labels;
+                this._labels = labels;
 
-        //         this.invalidate(true);
-        //     })
-        //     .catch((reason) => gloperate.auxiliaries.log(
-        //         gloperate.auxiliaries.LogLevel.Error, reason));
+                this.invalidate(true);
+            })
+            .catch((reason) => gloperate.auxiliaries.log(
+                gloperate.auxiliaries.LogLevel.Error, reason));
 
 
         return true;
@@ -196,9 +195,8 @@ class Renderer extends gloperate.Renderer {
 
     onPrepare() {
 
-        if (this._altered.frameSize) {
+        if (this._altered.frameSize || this._altered.frameScale) {
             this._intermediateFBO.resize(this._frameSize[0], this._frameSize[1]);
-            this._camera.viewport = this._canvasSize;
 
             this._camera.aspect = this._canvasSize[0] / this._canvasSize[1];
             this._camera.viewport = this._canvasSize;
@@ -234,30 +232,33 @@ class Renderer extends gloperate.Renderer {
         ndcOffset[1] = 2.0 * ndcOffset[1] / this._frameSize[1];
 
 
+        // gl.enable(gl.CULL_FACE);
+        // gl.cullFace(gl.BACK);
         gl.enable(gl.DEPTH_TEST);
 
-        // this._program.bind();
+        this._labelPass.update();
+        this._labelPass.frame();
+        this._labelPass.unbind();
 
+        gl.disable(gl.DEPTH_TEST);
 
         // gl.uniform2fv(this._uNdcOffset, ndcOffset);
 
-
-        // this._ndcRectangle.bind();
-        // this._ndcRectangle.draw();
-        // this._ndcRectangle.unbind();
-
-        // this._program.unbind();
-        this._intermediateFBO.unbind();
+        // this._intermediateFBO.unbind();
         
         // this._texture.unbind(gl.TEXTURE0);
 
+        // gl.cullFace(gl.BACK);
+        // gl.disable(gl.CULL_FACE);
+
 
         this._accumulate.frame(frameNumber);
+        console.log(frameNumber);
     }
 
     onSwap() { 
         this._blit.framebuffer = this._accumulate.framebuffer ?
-        this._accumulate.framebuffer : this._intermediateFBO;
+            this._accumulate.framebuffer : this._intermediateFBO;
         this._blit.frame();
 
         // this._blit.srcBounds = this._zoomSrcBounds;

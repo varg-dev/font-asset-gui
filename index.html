@@ -67,7 +67,6 @@
     </div>
 
 
-
     
     <script src="https://cdn.jsdelivr.net/npm/rxjs@latest/bundles/rxjs.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script>
@@ -103,6 +102,7 @@
                 alpha: false, antialias: false, depth: true, failIfMajorPerformanceCaveat: false,
                 premultipliedAlpha: false, preserveDrawingBuffer: false, stencil: false,
             });
+            canvas.controller.multiFrameNumber = 64;
 
             var blocker = new gloperate.viewer.EventBlocker(canvas.element);
                 blocker.block('contextmenu');
@@ -117,6 +117,9 @@
 
             renderer = new Renderer();            
             canvas.renderer = renderer; 
+
+
+            // todo: trigger font change on renderer when appropriate 
         }
 
     </script>  
