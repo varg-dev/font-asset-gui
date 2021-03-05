@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv = "x-ua-compatible" content = "ie=edge">
+    <meta name = "viewport" content = "width=device-width initial-scale=1">
+    
+    <title>Font Asset Generator</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+
+    <style>
+        figure, figure a, figure a img { width: 100%; }
+        figure a img { image-rendering: pixelated; }
+        .jumbotron { background-color: transparent; }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container-lg">
+
+        <div class="row mt-5">
+            <div class="col">
+                <h1 class="display-4"><strong>Font Asset</strong> Generator</h1>
+                <p class="lead">Generate font assets, i.e., <strong>font description</strong> file (.fnt) and <strong>glyph atlas</strong> (distance map in .png) for real-time font rendering.</p>               
+            </div>
+        </div>
+
+    <div>
+
+    <div class="container-lg">
+
+        <div class="row mt-5">
+            <div class="col-4 col-sm-12">
+
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="input-font">Choose Font</label>
+                    <select class="form-select" id="input-font">
+                        <option selected>Choose...</option>
+                        <option value="1">One</option>
+                        <option value="2">Two</option>
+                        <option value="3">Three</option>
+                    </select>
+                    <button class="btn btn-outline-secondary" type="button">Refresh</button>
+                </div>
+
+                <div id="file-api-missing-alert" class="alert alert-danger d-none" role="alert">
+                    The File APIs, required for font file, are not fully supported in this browser.
+                </div>
+                <div class="input-group mb-3">
+                    <input type="file" class="form-control" id="input-file" accept="font/*">
+                    <button class="btn btn-outline-secondary" type="button" id="input-file">Upload Font File</button>
+                </div>
+            </div>
+
+            <div class="col col-sm-12">
+                <canvas></canvas>
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/rxjs@latest/bundles/rxjs.umd.min.js"></script>
+    <!--<script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script>-->
+    <!--<script src="https://cdn.jsdelivr.net/npm/popper.js@1.15.0/dist/umd/popper.min.js"></script>-->
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/webgl-operate@latest/dist/webgl-operate.min.js"></script>
+
+
+    <script src = "index.js"></script>
+
+
+    <script>
+        if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
+            $('#file-api-missing-alert').toggleClass('d-none');
+        }
+
+        const input = $('#input-file');
+        const label = $("label[for='input-file']");
+
+
+        let canvas = null;
+        let renderer = null;
+
+        window.onload = () => { 
+            
+            const element = $('canvas')[0];
+
+            canvas = new gloperate.Canvas(element, { antialias: false });
+            
+            renderer = new Renderer();
+            canvas.renderer = renderer;
+            renderer.controller = canvas.controller; 
+        }
+
+    </script>  
+
+</body>
+
+</html>
