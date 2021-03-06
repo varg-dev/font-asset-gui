@@ -40,21 +40,81 @@
                 <div class="input-group mb-3">
                     <label class="input-group-text" for="input-font">Choose Font</label>
                     <select class="form-select" id="input-font">
-                        <option selected>Choose...</option>
-                        <option value="1">One</option>
-                        <option value="2">Two</option>
-                        <option value="3">Three</option>
+                        <option selected value="">Choose...</option>
+                        <option value="./open-sans--regular.fnt">Open Sans - Regular</option>
+                        <option value="./times-new-roman--regular.fnt">Times New Roman - Regular</option>
+                        <option value="./roboto--regular.fnt">Roboto - Regular</option>
                     </select>
-                    <button class="btn btn-outline-secondary" type="button">Refresh</button>
+                    <!--<button class="btn btn-outline-secondary" type="button">Refresh</button>-->
                 </div>
 
                 <div id="file-api-missing-alert" class="alert alert-danger d-none" role="alert">
                     The File APIs, required for font file, are not fully supported in this browser.
                 </div>
-                <div class="input-group mb-3">
+                <div class="input-group mb-5">
                     <input type="file" class="form-control" id="input-file" accept="font/*">
-                    <button class="btn btn-outline-secondary" type="button" id="input-file">Upload Font File</button>
+                    <button class="btn btn-outline-secondary" type="button" id="upload-file">Upload Font File</button>
                 </div>
+
+                <div class="mb-3 row">
+                    <div class="col-3 text-end">
+                        <label for="fontsize-range" class="form-label">Font Size in <strong>px</strong>:</label>
+                    </div>
+                    <div class="col">
+                        <input type="range" class="form-range" min="8" max="128" step="1" id="fontsize-range" value="64">
+                    </div>
+                    <div class="col-2">
+                        <input type="number" class="form-control form-control-sm"  min="8" max="128" id="fontsize-number" value="64">
+                    </div>
+                </div>
+
+                <div class="mb-3 row">
+                    <div class="col-3 text-end">
+                        <label for="downscale-range" class="form-label">Down Scale:</label>
+                    </div>
+                    <div class="col">
+                        <input type="range" class="form-range" min="0" max="8" step="1" id="downscale-range" value="4">
+                    </div>
+                    <div class="col-2">
+                        <input type="number" class="form-control form-control-sm" min="0" max="8" id="downscale-number" value="4">
+                    </div>
+                </div>
+
+                <div class="mb-3 row">
+                    <div class="col-3 text-end">
+                        <label for="padding-range" class="form-label">Padding in <strong>px</strong>:</label>
+                    </div>
+                    <div class="col">
+                        <input type="range" class="form-range" min="-4" max="16" step="1" id="padding-range" value="8">
+                    </div>
+                    <div class="col-2">
+                        <input type="number" class="form-control form-control-sm" min="-4" max="16" id="padding-number" value="8">
+                    </div>
+                </div>
+
+                <div class="mb-4 row">
+                    <div class="col-3 text-end">
+                        <label for="character-whitelist" class="form-label">Character Whitelist:</label>
+                    </div>
+                    <div class="col-9">
+                        <div class="input-group mb-3">
+                            <div class="input-group-text">
+                                <input class="form-check-input mt-0" id="character-check" type="checkbox" value="">
+                            </div>
+                            <input type="text" class="form-control form-control-sm" id="character-text">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-3 text-end">
+                        <label for="character-whitelist" class="form-label">Preview Text:</label>
+                    </div>
+                    <div class="col-9">
+                        <textarea class="form-control form-control-sm" id="preview-text" rows="4"></textarea> 
+                    </div>
+                </div>
+
             </div>
 
             <div class="col-8 col-md-6 col-sm-12">
@@ -85,9 +145,7 @@
             $('#file-api-missing-alert').toggleClass('d-none');
         }
 
-        const input = $('#input-file');
-        //const label = $("label[for='input-file']");
-        
+ 
         let canvas = null;
         let context = null;
         let controller = null;
@@ -118,9 +176,54 @@
             renderer = new Renderer();            
             canvas.renderer = renderer; 
 
-
+            // renderer.change('./roboto-test.fnt');
             // todo: trigger font change on renderer when appropriate 
         }
+
+        const inputFont = $('#input-font');
+        
+        inputFont.on('click', (e) => {
+            renderer.change(e.target.value);
+        });
+
+        const inputFile = $('#input-file');
+        const uploadFile = $('#upload-file');
+      
+        uploadFile.on('click', () => {
+            const file = inputFile.get(0).files[0];
+            renderer.change(file.name);
+        });
+
+
+        const fontsizeRange = $('#fontsize-range');
+        const fontsizeNumber = $('#fontsize-number');
+        fontsizeRange.on('input', (e) => fontsizeNumber.val(e.target.value));
+        fontsizeNumber.on('input', (e) => fontsizeRange.val(e.target.value));
+
+        const downscaleRange = $('#downscale-range');
+        const downscaleNumber = $('#downscale-number');
+        downscaleRange.on('input', (e) => downscaleNumber.val(e.target.value));
+        downscaleNumber.on('input', (e) => downscaleRange.val(e.target.value));
+
+        const paddingRange = $('#padding-range');
+        const paddingNumber = $('#padding-number');
+        paddingRange.on('input', (e) => paddingNumber.val(e.target.value));
+        paddingNumber.on('input', (e) => paddingRange.val(e.target.value));
+
+        const previewText = $('#preview-text');
+        previewText.on('input', (e) => renderer.text(e.target.value));
+
+        previewText.val(
+`Come, fill the Cup, and in the fire of Spring
+Your Winter garment of Repentance fling:
+The Bird of Time has but a little way
+To flutter—and the Bird is on the Wing.`);
+        renderer.text(previewText.val());
+
+        // const paddingRange = $('#padding-range');
+        // const paddingNumber = $('#padding-number');
+        // paddingRange.on('input', (e) => paddingNumber.val(e.target.value));
+        // paddingNumber.on('input', (e) => paddingRange.val(e.target.value));
 
     </script>  
 
