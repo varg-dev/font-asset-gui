@@ -46,7 +46,7 @@
             </div>
         </div>
 
-        <div class="row justify-content-start mb-5" id="canvas-nav">
+        <div class="row justify-content-start" id="canvas-nav">
             
             <div class="col-md-2 col-sm-6 col-12 mt-3">
                 <div class="input-group input-group-sm">
@@ -112,11 +112,11 @@
 
     <div class="container-lg">
 
-        <div class="row justify-content-start mt-4">
+        <div class="row justify-content-center">
             
-            <div class="col-4 col-md-6 col-sm-12">
+            <div class="col-lg-6 col-md-10 col-12 mt-5">
 
-                <h4 class="mb-4">STEP 1 |&emsp;Choose an <strong>existing font</strong> or <strong>upload a font</strong>.</h4>
+                <h4 class="mb-4">STEP 1&ensp;|&ensp;Choose an <strong>existing font</strong> or <strong>upload a font</strong>.</h4>
 
                 <div class="input-group mb-4">
                     <label class="input-group-text" for="input-font">Existing Font</label>
@@ -142,11 +142,11 @@
                     <button class="btn btn-outline-secondary" type="button" id="upload-file">...and <strong>upload</strong></button>
                 </div>
             </div>
-        
 
-            <div class="col-4 col-md-6 col-sm-12">
-                
-                <h4 class="mb-4">STEP 2 |&emsp;Specify the font <strong>asset format</strong> and <strong>charset</strong>.</h4>
+
+            <div class="col-lg-6 col-md-10 col-12 mt-5">
+
+                <h4 class="mb-4">STEP 2&ensp;|&ensp;Specify the font <strong>asset format</strong> and <strong>charset</strong>.</h4>
                 
                 <div class="input-group mb-4">
                     <label class="input-group-text" for="distance-type">Type</label>
@@ -186,19 +186,19 @@
         </div>
         
 
-        <div class="row justify-content-start mt-4">
-            <div class="col-4 col-md-6 col-sm-12">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-10 col-12 mt-5">
 
-                <h4 class="mb-4">STEP 3 |&emsp;Customize and tweak <strong>glyph atlas</strong>.</h4>
+                <h4 class="mb-4">STEP 3&ensp;|&ensp;Customize and tweak <strong>glyph atlas</strong>.</h4>
         
                 
                 <div class="mb-3 row">
                     <div class="col-3 text-end">
-                        <label for="fontsize-range" class="form-label">Packing Algorithm:</label>
+                        <label for="packing-algorithm" class="form-label">Packing Algorithm:</label>
                     </div>
                     <div class="col">
                         <!-- fill up automatically based on API capabilities -->
-                        <select class="form-select" id="character-set">
+                        <select class="form-select" id="packing-algorithm">
                             <option value="shelf" selected>Shelf Packing</option>
                             <option value="maxrects">Max Rects Packing</option>
                         </select>
@@ -245,17 +245,17 @@
             </div>
 
 
-            <div class="col-4 col-md-6 col-sm-12">
+            <div class="col-lg-6 col-md-10 col-12 mt-5">
 
-                <h4 class="mb-4">STEP 4 |&emsp;Review and access <strong>font assets</strong>.</h4>
+                <h4 class="mb-4">STEP 4&ensp;|&ensp;Review and access <strong>font assets</strong>.</h4>
         
                 <div class="row mb-3">
                     <div class="col-3 text-end">
-                        <label for="padding-range" class="form-label">Update Pending:</label>
+                        <label for="padding-range" class="form-label">API Cooldown:</label>
                     </div>
                     <div class="col">
                         <div class="progress mt-1" style="height: 1.5em;">
-                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                            <div class="progress-bar" role="progressbar" id="progress-bar" style="width: 0%"></div>
                         </div>
                     </div>
                 </div>
@@ -317,39 +317,41 @@ jumps over the lazy dwarf.
         let renderer = null;
 
 
-        const bindPreviewControls = () => {
+        // Step-0 Controls - Preview
 
-            const aaSampling = $('#text-aa');
-            aaSampling.on('change', (e) => {
-                renderer.aaSampling(e.target.value);
-            });
+        const step0 = {
+            aaSampling: $('#text-aa'),
+            superSampling: $('#super-sampling'),
+            textureFilter: $('#texture-filter'),
+            resolutionScale: $('#resolution-scale'),
+            debugBlit: $('#debug-blit'),
+        };
 
-            const superSampling = $('#super-sampling');
-            superSampling.on('change', (e) => {
-                controller.multiFrameNumber = e.target.value;
-            });
-            
-            const textureFilter = $('#texture-filter');
-            textureFilter.on('change', (e) => {
-                renderer.textureFilter(e.target.value);
-            });
-            
-            const resolutionScale = $('#resolution-scale');
-            resolutionScale.on('change', (e) => {
-                canvas.frameScale = [ e.target.value, e.target.value ];
-            });
+        const bindStep0Controls = () => {
 
-            const debugBlit = $('#debug-blit');
-            debugBlit.on('change', (e) => {
-                renderer.debugBlit(e.target.checked);
-            });
+            step0.aaSampling.on('change', (e) => {
+                renderer.aaSampling(e.target.value); });
+
+            step0.superSampling.on('change', (e) => {
+                controller.multiFrameNumber = e.target.value; });
             
-            aaSampling.trigger('change');
-            superSampling.trigger('change');
-            textureFilter.trigger('change');
-            resolutionScale.trigger('change');
-            debugBlit.trigger('change');
+            step0.textureFilter.on('change', (e) => {
+                renderer.textureFilter(e.target.value); });
+            
+            step0.resolutionScale.on('change', (e) => {
+                canvas.frameScale = [ e.target.value, e.target.value ]; });
+
+            step0.debugBlit.on('change', (e) => {
+                renderer.debugBlit(e.target.checked); });
+
+            step0.aaSampling.trigger('change');
+            step0.superSampling.trigger('change');
+            step0.textureFilter.trigger('change');
+            step0.resolutionScale.trigger('change');
+            step0.debugBlit.trigger('change');
         }
+
+        // Step-1 Controls - Font Select/Upload
 
         const bindStep1Controls = () => {
 
@@ -367,28 +369,49 @@ jumps over the lazy dwarf.
             });
         }
 
+
+
+
         const bindStep2Controls = () => {
         
-            // const fontsizeRange = $('#fontsize-range');
-            // const fontsizeNumber = $('#fontsize-number');
-            // fontsizeRange.on('input', (e) => fontsizeNumber.val(e.target.value));
-            // fontsizeNumber.on('input', (e) => fontsizeRange.val(e.target.value));
-
-            // const downscaleRange = $('#downscale-range');
-            // const downscaleNumber = $('#downscale-number');
-            // downscaleRange.on('input', (e) => downscaleNumber.val(e.target.value));
-            // downscaleNumber.on('input', (e) => downscaleRange.val(e.target.value));
-
-            // const paddingRange = $('#padding-range');
-            // const paddingNumber = $('#padding-number');
-            // paddingRange.on('input', (e) => paddingNumber.val(e.target.value));
-            // paddingNumber.on('input', (e) => paddingRange.val(e.target.value));
+          
         }
+
+        
+        const step3 = {
+            packingAlgorithm: $('#packing-algorithm'),
+
+            fontsizeRange: $('#fontsize-range'),
+            fontsizeNumber: $('#fontsize-number'),
+
+            downscaleRange: $('#downscale-range'),
+            downscaleNumber: $('#downscale-number'),
+
+            paddingRange: $('#padding-range'),
+            paddingNumber: $('#padding-number'),
+        };
 
         const bindStep3Controls = () => {
         
+            step3.packingAlgorithm.on('input', (e) => {
+                dispatchUpdate(); });
+
+            step3.fontsizeRange.on('input', (e) => {
+                dispatchUpdate(); step3.fontsizeNumber.val(e.target.value); });
+            step3.fontsizeNumber.on('input', (e) => {
+                dispatchUpdate(); step3.fontsizeRange.val(e.target.value); });
+
+            step3.downscaleRange.on('input', (e) => {
+                dispatchUpdate(); step3.downscaleNumber.val(e.target.value); });
+            step3.downscaleNumber.on('input', (e) => {
+                dispatchUpdate(); step3.downscaleRange.val(e.target.value); });
+
+            step3.paddingRange.on('input', (e) => {
+                dispatchUpdate(); step3.paddingNumber.val(e.target.value); });
+            step3.paddingNumber.on('input', (e) => {
+                dispatchUpdate(); step3.paddingRange.val(e.target.value); });
         }
-         
+
         
         const bindStep4Controls = () => {
     
@@ -399,8 +422,9 @@ jumps over the lazy dwarf.
         }
 
 
-        const cs_ascii1967 = ` !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_\`abcdefghijklmnopqrstuvwxyz{|}~`;
+        // Initialize and Bind
 
+        const cs_ascii1967 = ` !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_\`abcdefghijklmnopqrstuvwxyz{|}~`;
 
         window.onload = () => { 
             
@@ -425,16 +449,46 @@ jumps over the lazy dwarf.
             renderer = new Renderer();            
             canvas.renderer = renderer; 
 
-            // renderer.change('./roboto-test.fnt');
-            // todo: trigger font change on renderer when appropriate 
 
-            bindPreviewControls();
-
+            bindStep0Controls();
             bindStep1Controls();
             bindStep2Controls();
             bindStep3Controls();
             bindStep4Controls();
         }
+
+
+        // API Cooldown - brief delay to reduce API call frequency
+
+        let updateTimer = null;
+        let updateTime = 0;
+        let updateDelay = 4000;
+        
+        const update = () => {
+            clearTimeout(updateTimer);
+            updateTimer = null;
+
+            // actual API call dispatches
+        }
+
+        const dispatchUpdate = () => {
+
+            if(updateTimer) {
+                clearTimeout(updateTimer);
+            }
+            updateTime = performance.now() + updateDelay;
+            updateTimer = setTimeout(update, updateDelay);
+        }
+
+        const progressBar = $('#progress-bar');
+        setInterval(() => {
+            if(updateTimer == null) {
+                progressBar.css('width', `0%`);
+                return;
+            }
+            const progress = (updateTime - performance.now()) / updateDelay;
+            progressBar.css('width', `${progress * 100.0}%`);
+        }, 50);
 
 
     </script>  
