@@ -10,11 +10,19 @@
     <title>Font Asset Generator</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;700&display=swap" rel="stylesheet"> 
 
     <style>
-        figure, figure a, figure a img { width: 100%; }
-        figure a img { image-rendering: pixelated; }
-        .jumbotron { background-color: transparent; }
+        body {
+            font-family: 'Roboto', sans-serif !important;
+        }
+        h1.display-4 {
+            font-weight: 100 !important;
+        }
+        strong {
+            font-weight: 700 !important;
+        }
     </style>
 
 </head>
@@ -22,23 +30,96 @@
 <body>
 
     <div class="container-lg">
-
+    
         <div class="row mt-5">
             <div class="col">
                 <h1 class="display-4"><strong>Font Asset</strong> Generator</h1>
-                <p class="lead">Generate font assets, i.e., <strong>font description</strong> file (.fnt) and <strong>glyph atlas</strong> (distance map in .png) for real-time font rendering.</p>               
+                <p class="lead">Generate font assets, i.e., <strong>font description</strong> file (.fnt) and <strong>glyph atlas</strong> (distance map in .png) for <a href="https://webgl-operate.org">webgl-operate</a> glyph rendering.</p>               
             </div>
         </div>
 
-    <div>
+        <div class="row mt-3">
+            <div class="col">
+                <div class="ratio ratio-21x9">
+                    <canvas class="embed-responsive-item w-100" id="canvas"></canvas>
+                </div>       
+            </div>
+        </div>
+
+        <div class="row justify-content-start mb-5" id="canvas-nav">
+            
+            <div class="col-md-2 col-sm-6 col-12 mt-3">
+                <div class="input-group input-group-sm">
+                    <label class="input-group-text" for="text-aa">Text AA</label>
+                    <select class="form-select" id="text-aa">
+                        <option value="5">4&times;4 Grid</option>    
+                        <option value="4">3&times;3 Grid</option>
+                        <option value="3">1&times;3 (vertical)</option>
+                        <option value="2">3&times;1 (horizontal)</option>
+                        <option value="1" selected>Smooth</option>
+                        <option value="0">None</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6 col-12 mt-3">
+                <div class="input-group input-group-sm">
+                    <label class="input-group-text" for="super-sampling">Super Sampling</label>
+                    <select class="form-select" id="super-sampling">
+                        <option value="64">Golden Set, 64 Samples</option>
+                        <option value="8">Golden Set, 8 Samples</option>
+                        <option value="1024">Random, 256 Samples</option>
+                        <option value="1" selected>None, 1 Sample</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-4 col-sm-6 col-12 mt-3">
+                <div class="input-group input-group-sm">
+                    <label class="input-group-text" for="texture-filter">Texture Filter</label>
+                    <select class="form-select" id="texture-filter">
+                        <option value="16">Anisotrophic 16x</option>
+                        <option value="8">Anisotrophic 8x</option>
+                        <option value="4">Anisotrophic 4x</option>
+                        <option value="3">Trilinear</option>
+                        <option value="2" selected>Bilinear</option>
+                        <option value="1">Nearest</option>
+                    </select>
+                    <span class="input-group-text">Debug</span>
+                    <div class="input-group-text">
+                        <input class="form-check-input mt-0" id="debug-blit" type="checkbox" value="">
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6 col-12 mt-3">
+                <div class="input-group input-group-sm">
+                    <label class="input-group-text" for="resolution-scale">Resolution Scale</label>
+                    <select class="form-select" id="resolution-scale">
+                        <option value="2.000">&times; 2.000</option>
+                        <option value="1.000" selected>&times; 1.000</option>
+                        <option value="0.500">&times; 0.500</option>
+                        <option value="0.250">&times; 0.250</option>
+                        <option value="0.125">&times; 0.125</option>
+                    </select>
+                </div>
+            </div>
+        
+        </div>
+            
+    </div>
+        
 
     <div class="container-lg">
 
-        <div class="row justify-content-start mt-5">
+        <div class="row justify-content-start mt-4">
+            
             <div class="col-4 col-md-6 col-sm-12">
 
-                <div class="input-group mb-3">
-                    <label class="input-group-text" for="input-font">Choose Font</label>
+                <h4 class="mb-4">STEP 1 |&emsp;Choose an <strong>existing font</strong> or <strong>upload a font</strong>.</h4>
+
+                <div class="input-group mb-4">
+                    <label class="input-group-text" for="input-font">Existing Font</label>
                     <select class="form-select" id="input-font">
                         <option selected value="">Choose...</option>
                         <option value="./open-sans--regular.fnt">Open Sans - Regular</option>
@@ -51,12 +132,81 @@
                 <div id="file-api-missing-alert" class="alert alert-danger d-none" role="alert">
                     The File APIs, required for font file, are not fully supported in this browser.
                 </div>
-                <div class="input-group mb-5">
-                    <input type="file" class="form-control" id="input-file" accept="font/*">
-                    <button class="btn btn-outline-secondary" type="button" id="upload-file">Upload Font File</button>
+                <div class="input-group mb-2">
+                    <input type="file" class="form-control" id="upload-file" accept="font/*">
                 </div>
 
+                <div class="input-group">
+                    <label class="input-group-text" for="upload-name">Specify a name</label>
+                    <input type="text" class="form-control" id="upload-name" placeholder="font-name-regular">
+                    <button class="btn btn-outline-secondary" type="button" id="upload-file">...and <strong>upload</strong></button>
+                </div>
+            </div>
+        
+
+            <div class="col-4 col-md-6 col-sm-12">
+                
+                <h4 class="mb-4">STEP 2 |&emsp;Specify the font <strong>asset format</strong> and <strong>charset</strong>.</h4>
+                
+                <div class="input-group mb-4">
+                    <label class="input-group-text" for="distance-type">Type</label>
+                    <select class="form-select" id="distance-type">
+                        <!-- fill up automatically based on API capabilities -->
+                        <option value="deadrec">Dead Reckoning</option>
+                        <option value="parabola" selected>Parabola Envelope</option>
+                    </select>
+                    <select class="form-select" id="map-type">
+                        <!-- fill up automatically based on API capabilities -->
+                        <option value="sdf" selected>SDF</option>
+                        <option value="MSDF" disabled>MSDF</option>
+                        <option value="MTSDF" disabled>MTSDF</option>
+                    </select>
+                    <select class="form-select" id="bitness">
+                        <!-- fill up automatically based on API capabilities -->
+                        <option value="8" selected>8 bit</option>
+                        <option value="2x8" disabled>16 bit | 2&times;8 bit</option>
+                        <option value="16" disabled>16 bit | single</option>
+                    </select>
+                </div>
+
+                <div class="input-group mb-2">
+                    <label class="input-group-text" for="character-set">Character Set:</label>
+                    <select class="form-select" id="character-set">
+                        <option value="ascii-1967" selected>ASCII 1967</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="character-text">Characters:</label>
+                    <input type="text" class="form-control" id="character-text" value="" disabled>
+                </div>
+
+            </div>
+            
+        </div>
+        
+
+        <div class="row justify-content-start mt-4">
+            <div class="col-4 col-md-6 col-sm-12">
+
+                <h4 class="mb-4">STEP 3 |&emsp;Customize and tweak <strong>glyph atlas</strong>.</h4>
+        
+                
                 <div class="mb-3 row">
+                    <div class="col-3 text-end">
+                        <label for="fontsize-range" class="form-label">Packing Algorithm:</label>
+                    </div>
+                    <div class="col">
+                        <!-- fill up automatically based on API capabilities -->
+                        <select class="form-select" id="character-set">
+                            <option value="shelf" selected>Shelf Packing</option>
+                            <option value="maxrects">Max Rects Packing</option>
+                        </select>
+                    </div>
+                </div>
+
+
+                <div class="row mb-3">
                     <div class="col-3 text-end">
                         <label for="fontsize-range" class="form-label">Font Size in <strong>px</strong>:</label>
                     </div>
@@ -68,7 +218,7 @@
                     </div>
                 </div>
 
-                <div class="mb-3 row">
+                <div class="row mb-3">
                     <div class="col-3 text-end">
                         <label for="downscale-range" class="form-label">Down Scale:</label>
                     </div>
@@ -80,7 +230,7 @@
                     </div>
                 </div>
 
-                <div class="mb-3 row">
+                <div class="row mb-3">
                     <div class="col-3 text-end">
                         <label for="padding-range" class="form-label">Padding in <strong>px</strong>:</label>
                     </div>
@@ -92,37 +242,51 @@
                     </div>
                 </div>
 
-                <div class="mb-4 row">
+            </div>
+
+
+            <div class="col-4 col-md-6 col-sm-12">
+
+                <h4 class="mb-4">STEP 4 |&emsp;Review and access <strong>font assets</strong>.</h4>
+        
+                <div class="row mb-3">
                     <div class="col-3 text-end">
-                        <label for="character-whitelist" class="form-label">Character Whitelist:</label>
+                        <label for="padding-range" class="form-label">Update Pending:</label>
                     </div>
-                    <div class="col-9">
-                        <div class="input-group mb-3">
-                            <div class="input-group-text">
-                                <input class="form-check-input mt-0" id="character-check" type="checkbox" value="">
-                            </div>
-                            <input type="text" class="form-control form-control-sm" id="character-text">
+                    <div class="col">
+                        <div class="progress mt-1" style="height: 1.5em;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
                         </div>
                     </div>
                 </div>
 
-                <div class="row">
+                <div class="row mb-3">
                     <div class="col-3 text-end">
                         <label for="character-whitelist" class="form-label">Preview Text:</label>
                     </div>
                     <div class="col-9">
-                        <textarea class="form-control form-control-sm" id="preview-text" rows="4"></textarea> 
+                        <textarea class="form-control" id="preview-text" rows="4">
+Amazingly few discotheques provide
+jukeboxes. The quick onyx goblin
+jumps over the lazy dwarf.
+42 * 138 + 0 = 5796 #pangram</textarea> 
                     </div>
                 </div>
 
             </div>
 
-            <div class="col-8 col-md-6 col-sm-12">
-                <div class="ratio ratio-4x3">
-                    <canvas class="embed-responsive-item w-100" id="canvas"></canvas>
-            </div>
-
         </div>
+
+
+        <div class="container-lg my-5">
+
+            <div class="row justify-content-start my-5">
+                <div class="col">
+                </div>
+            </div>
+        
+        </div>
+        
 
     </div>
 
@@ -152,6 +316,92 @@
         let gl = null;
         let renderer = null;
 
+
+        const bindPreviewControls = () => {
+
+            const aaSampling = $('#text-aa');
+            aaSampling.on('change', (e) => {
+                renderer.aaSampling(e.target.value);
+            });
+
+            const superSampling = $('#super-sampling');
+            superSampling.on('change', (e) => {
+                controller.multiFrameNumber = e.target.value;
+            });
+            
+            const textureFilter = $('#texture-filter');
+            textureFilter.on('change', (e) => {
+                renderer.textureFilter(e.target.value);
+            });
+            
+            const resolutionScale = $('#resolution-scale');
+            resolutionScale.on('change', (e) => {
+                canvas.frameScale = [ e.target.value, e.target.value ];
+            });
+
+            const debugBlit = $('#debug-blit');
+            debugBlit.on('change', (e) => {
+                renderer.debugBlit(e.target.checked);
+            });
+            
+            aaSampling.trigger('change');
+            superSampling.trigger('change');
+            textureFilter.trigger('change');
+            resolutionScale.trigger('change');
+            debugBlit.trigger('change');
+        }
+
+        const bindStep1Controls = () => {
+
+            const inputFont = $('#input-font');
+            inputFont.on('click', (e) => {
+                renderer.change(e.target.value);
+            });
+
+            const inputFile = $('#input-file');
+            const uploadFile = $('#upload-file');
+        
+            uploadFile.on('click', () => {
+                const file = inputFile.get(0).files[0];
+                renderer.change(file.name);
+            });
+        }
+
+        const bindStep2Controls = () => {
+        
+            // const fontsizeRange = $('#fontsize-range');
+            // const fontsizeNumber = $('#fontsize-number');
+            // fontsizeRange.on('input', (e) => fontsizeNumber.val(e.target.value));
+            // fontsizeNumber.on('input', (e) => fontsizeRange.val(e.target.value));
+
+            // const downscaleRange = $('#downscale-range');
+            // const downscaleNumber = $('#downscale-number');
+            // downscaleRange.on('input', (e) => downscaleNumber.val(e.target.value));
+            // downscaleNumber.on('input', (e) => downscaleRange.val(e.target.value));
+
+            // const paddingRange = $('#padding-range');
+            // const paddingNumber = $('#padding-number');
+            // paddingRange.on('input', (e) => paddingNumber.val(e.target.value));
+            // paddingNumber.on('input', (e) => paddingRange.val(e.target.value));
+        }
+
+        const bindStep3Controls = () => {
+        
+        }
+         
+        
+        const bindStep4Controls = () => {
+    
+            const previewText = $('#preview-text');
+            previewText.on('input', (e) => renderer.previewText(e.target.value));
+
+            previewText.trigger('input');
+        }
+
+
+        const cs_ascii1967 = ` !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_\`abcdefghijklmnopqrstuvwxyz{|}~`;
+
+
         window.onload = () => { 
             
             const element = $('#canvas')[0];
@@ -160,7 +410,6 @@
                 alpha: false, antialias: false, depth: true, failIfMajorPerformanceCaveat: false,
                 premultipliedAlpha: false, preserveDrawingBuffer: false, stencil: false,
             });
-            canvas.controller.multiFrameNumber = 64;
 
             var blocker = new gloperate.viewer.EventBlocker(canvas.element);
                 blocker.block('contextmenu');
@@ -178,52 +427,15 @@
 
             // renderer.change('./roboto-test.fnt');
             // todo: trigger font change on renderer when appropriate 
+
+            bindPreviewControls();
+
+            bindStep1Controls();
+            bindStep2Controls();
+            bindStep3Controls();
+            bindStep4Controls();
         }
 
-        const inputFont = $('#input-font');
-        
-        inputFont.on('click', (e) => {
-            renderer.change(e.target.value);
-        });
-
-        const inputFile = $('#input-file');
-        const uploadFile = $('#upload-file');
-      
-        uploadFile.on('click', () => {
-            const file = inputFile.get(0).files[0];
-            renderer.change(file.name);
-        });
-
-
-        const fontsizeRange = $('#fontsize-range');
-        const fontsizeNumber = $('#fontsize-number');
-        fontsizeRange.on('input', (e) => fontsizeNumber.val(e.target.value));
-        fontsizeNumber.on('input', (e) => fontsizeRange.val(e.target.value));
-
-        const downscaleRange = $('#downscale-range');
-        const downscaleNumber = $('#downscale-number');
-        downscaleRange.on('input', (e) => downscaleNumber.val(e.target.value));
-        downscaleNumber.on('input', (e) => downscaleRange.val(e.target.value));
-
-        const paddingRange = $('#padding-range');
-        const paddingNumber = $('#padding-number');
-        paddingRange.on('input', (e) => paddingNumber.val(e.target.value));
-        paddingNumber.on('input', (e) => paddingRange.val(e.target.value));
-
-        const previewText = $('#preview-text');
-        previewText.on('input', (e) => renderer.text(e.target.value));
-
-        previewText.val(
-`Come, fill the Cup, and in the fire of Spring
-Your Winter garment of Repentance fling:
-The Bird of Time has but a little way
-To flutter—and the Bird is on the Wing.`);
-        renderer.text(previewText.val());
-
-        // const paddingRange = $('#padding-range');
-        // const paddingNumber = $('#padding-number');
-        // paddingRange.on('input', (e) => paddingNumber.val(e.target.value));
-        // paddingNumber.on('input', (e) => paddingRange.val(e.target.value));
 
     </script>  
 
