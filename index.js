@@ -74,9 +74,9 @@ class Renderer extends gloperate.Renderer {
 
 
         this._camera = new gloperate.Camera();
-        this._camera.center = gloperate.vec3.fromValues(0.0, 0.0, 0.0);
-        this._camera.up = gloperate.vec3.fromValues(0.0, 1.0, 0.0);
-        this._camera.eye = gloperate.vec3.fromValues(1.0, 0.0, 3.0);
+        this._camera.up =     [ 0.0, 1.0, 0.0 ];
+        this._camera.center = [ 0.121166, -0.688645, -0.010994 ];
+        this._camera.eye =    [ 4.125616,  1.338718,  1.735594 ];
         this._camera.near = 0.1;
         this._camera.far = 32.0;
 
@@ -248,7 +248,7 @@ class Renderer extends gloperate.Renderer {
         this._planeGeometry = new gloperate.PlaneGeometry(context);
         this._planeGeometry.initialize();
 
-        { 
+        {
             var vert = new gloperate.Shader(context, gl.VERTEX_SHADER, 'plane.frag (in-line)');
             vert.initialize(`
                 precision mediump float;
@@ -271,6 +271,8 @@ class Renderer extends gloperate.Renderer {
                     gl_Position = vertex;
                 }
                 `);
+
+            // fragment shader COPIED from webgl-operate LabelRenderPass ...
 
             var frag = new gloperate.Shader(context, gl.FRAGMENT_SHADER, 'plane.frag (in-line)');
             frag.initialize(`
@@ -464,7 +466,7 @@ class Renderer extends gloperate.Renderer {
 
         this._labels[2] = new gloperate.Projected3DLabel(new gloperate.Text(` !"#$%&'()*+,-./0123456789:;<=>?@\n\rABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_\`\n\rabcdefghijklmnopqrstuvwxyz{|}~`), 
             gloperate.Label.Type.Dynamic);
-        this._labels[2].lineAnchor = gloperate.Label.LineAnchor.Baseline;
+        this._labels[2].lineAnchor = gloperate.Label.LineAnchor.Top;
         this._labels[2].alignment = gloperate.Label.Alignment.Center;
         this._labels[2].position = [+2.0, -0.0, +2.0];
         this._labels[2].fontSize = 32.0;
