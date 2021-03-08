@@ -119,27 +119,27 @@
                 <h4 class="mb-4">STEP 1&ensp;|&ensp;Choose an <strong>existing font</strong> or <strong>upload a font</strong>.</h4>
 
                 <div class="input-group mb-4">
-                    <label class="input-group-text" for="input-font">Existing Font</label>
-                    <select class="form-select" id="input-font">
+                    <label class="input-group-text" for="input-fonts">Existing Font</label>
+                    <select class="form-select" id="input-fonts">
                         <option selected value="">Choose...</option>
                         <option value="./open-sans--regular.fnt">Open Sans - Regular</option>
                         <option value="./times-new-roman--regular.fnt">Times New Roman - Regular</option>
                         <option value="./roboto--regular.fnt">Roboto - Regular</option>
                     </select>
-                    <!--<button class="btn btn-outline-secondary" type="button">Refresh</button>-->
+                    <button class="btn btn-outline-secondary" type="button" id="refresh-fonts">refresh</button>
                 </div>
 
                 <div id="file-api-missing-alert" class="alert alert-danger d-none" role="alert">
                     The File APIs, required for font file, are not fully supported in this browser.
                 </div>
                 <div class="input-group mb-2">
-                    <input type="file" class="form-control" id="upload-file" accept="font/*">
+                    <input type="file" class="form-control" id="upload-file" accept=".ttf, .otf|font/*">
                 </div>
 
                 <div class="input-group">
                     <label class="input-group-text" for="upload-name">Specify a name</label>
                     <input type="text" class="form-control" id="upload-name" placeholder="font-name-regular">
-                    <button class="btn btn-outline-secondary" type="button" id="upload-file">...and <strong>upload</strong></button>
+                    <button class="btn btn-outline-secondary" type="button" id="upload-font">...and <strong>upload</strong></button>
                 </div>
             </div>
 
@@ -300,7 +300,6 @@ jumps over the lazy dwarf.
 
     <script src="https://cdn.jsdelivr.net/npm/webgl-operate@latest/dist/webgl-operate.min.js"></script>
 
-
     <script src = "index.js"></script>
 
 
@@ -308,6 +307,68 @@ jumps over the lazy dwarf.
         if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
             $('#file-api-missing-alert').toggleClass('d-none');
         }
+
+        const API_URL = 'http://localhost:8192'; //'https://fonts.varg.dev';
+
+        class api {
+
+            static get(route) {
+                return fetch(API_URL + route, {
+                    'method': 'get',
+                }).catch(error => {
+                    console.log('[error]', error);
+                });
+            }
+
+            static post(route, params, data) {
+                const query = new URLSearchParams(params).toString();
+                console.log(query);
+                return fetch(API_URL + route + '?' + query, {
+                    'method': 'post',
+                    'body': data,
+                }).catch(error => {
+                    console.log('[error]', error);
+                });
+            }
+
+            static getFonts() {
+                return api.get('/fonts');
+            }
+
+            static postFont(fontFile, uploadName) {
+
+                let uploadFormat = fontFile.name.split('.').pop();
+                let mimeType = 'font/';
+                if(uploadFormat == fontFile.name) {
+                    mimeType = mimeType + '*';
+                    uploadFormat = '';
+                } else {
+                    mimeType = mimeType + uploadFormat;
+                    uploadFormat = '.' + uploadFormat;
+                }
+                uploadName = uploadName.substr(0, uploadName.lastIndexOf('.'))
+ 
+                const font = {
+                    data: fontFile,
+                    mimetype: mimeType,
+                    name: fontFile.name,
+                };
+
+                const data = new FormData(/*{ maxDataSize: MAX_IMAGE_SIZE }*/);
+                data.append('file', font.data, font.name);
+
+                console.log('DETAILS:',  mimeType, uploadName, uploadFormat);
+                console.log('DATA:', data);
+
+                return api.post('/fonts', {
+                    identifier: uploadName,
+                    format: uploadFormat,
+                }, data);
+
+            };
+
+        };
+
 
  
         let canvas = null;
@@ -353,24 +414,61 @@ jumps over the lazy dwarf.
 
         // Step-1 Controls - Font Select/Upload
 
+        const step1 = {
+            inputFonts: $('#input-fonts'),
+            refreshFonts: $('#refresh-fonts'),
+            uploadFile: $('#upload-file'),
+            uploadName: $('#upload-name'),
+            uploadFont: $('#upload-font'),
+        };
+
         const bindStep1Controls = () => {
 
-            const inputFont = $('#input-font');
-            inputFont.on('click', (e) => {
-                renderer.change(e.target.value);
+            step1.refreshFonts.on('click', async () => {
+
+                let fonts = await api.getFonts().then(async (response) => { return await response.json(); });
+                console.log(fonts);
+
+                step1.inputFonts.children().each(function() {
+                    $(this).remove();
+                });
+                fonts.forEach((font /* object */) => {
+                    const config = {
+                        value: API_URL + font.url,
+                        text: font.identifier,
+                    };
+                    step1.inputFonts.append($('<option>', config));
+                });
             });
 
-            const inputFile = $('#input-file');
-            const uploadFile = $('#upload-file');
-        
-            uploadFile.on('click', () => {
-                const file = inputFile.get(0).files[0];
-                renderer.change(file.name);
+            step1.inputFonts.on('click', (e) => {
+                console.log(e.target.value);
+                // renderer.change()
+            });
+
+            step1.uploadFile.on('input', (e) => {
+                const filePath = e.target.value;
+                const pathParts = filePath.split('\\');
+                const fileName = pathParts[pathParts.length - 1];
+                const uploadName = fileName.replaceAll(' ', '-').toLowerCase();
+                step1.uploadName.val(uploadName);
+            });
+       
+            step1.uploadFont.on('click', () => {
+                const fontPath = step1.uploadFile.prop('files')[0];
+                const fontName = step1.uploadName.val();
+               
+                api.postFont(fontPath, fontName).then(() => {
+                    step1.refreshFonts.trigger('click');
+                });
             });
         }
 
 
+        const step2 = {
+            
 
+        };
 
         const bindStep2Controls = () => {
         
@@ -412,6 +510,10 @@ jumps over the lazy dwarf.
                 dispatchUpdate(); step3.paddingRange.val(e.target.value); });
         }
 
+        
+        const step4 = {
+
+        }
         
         const bindStep4Controls = () => {
     
