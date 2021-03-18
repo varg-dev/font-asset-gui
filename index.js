@@ -442,7 +442,7 @@ class Renderer extends gloperate.Renderer {
 
         this._labels = new Array(3);
 
-        this._labels[0] = new gloperate.Position3DLabel(new gloperate.Text(''), 
+        this._labels[0] = new gloperate.Position3DLabel(new gloperate.Text('dsaf asdf'), 
             gloperate.Label.Type.Static);
         this._labels[0].lineAnchor = gloperate.Label.LineAnchor.Baseline;
         this._labels[0].alignment = gloperate.Label.Alignment.Left;
@@ -453,7 +453,7 @@ class Renderer extends gloperate.Renderer {
         this._labels[0].fontSizeUnit = gloperate.Label.Unit.World;
         this._labels[0].color.fromHex('#ffffff');
 
-        this._labels[1] = new gloperate.Position3DLabel(new gloperate.Text(''), 
+        this._labels[1] = new gloperate.Position3DLabel(new gloperate.Text('asdfadsf'), 
             gloperate.Label.Type.Static);
         this._labels[1].lineAnchor = gloperate.Label.LineAnchor.Baseline;
         this._labels[1].alignment = gloperate.Label.Alignment.Right;
@@ -763,12 +763,12 @@ class Renderer extends gloperate.Renderer {
         // this._queue.push([ identifier, Math.min(8192, Math.max(8, size)), samples, this._debug ]);
         // this.invalidate();
     }
-
-    change(file) {
+  
+    changeFont(descriptionUrl, distanceFieldUrl) {
 
         const gl2facade = this._context.gl2facade;
 
-        gloperate.FontFace.fromFile(file, context)
+        gloperate.FontFace.fromFiles(descriptionUrl, new Map([[ 0, distanceFieldUrl ]]), context)
             .then((fontFace) => {
 
                 this._fontFace = fontFace;

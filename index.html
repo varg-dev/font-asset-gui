@@ -121,10 +121,6 @@
                 <div class="input-group mb-4">
                     <label class="input-group-text" for="input-fonts">Existing Font</label>
                     <select class="form-select" id="input-fonts">
-                        <option selected value="">Choose...</option>
-                        <option value="./open-sans--regular.fnt">Open Sans - Regular</option>
-                        <option value="./times-new-roman--regular.fnt">Times New Roman - Regular</option>
-                        <option value="./roboto--regular.fnt">Roboto - Regular</option>
                     </select>
                     <button class="btn btn-outline-secondary" type="button" id="refresh-fonts">refresh</button>
                 </div>
@@ -172,20 +168,19 @@
                 <div class="input-group mb-2">
                     <label class="input-group-text" for="character-set">Character Set:</label>
                     <select class="form-select" id="character-set">
-                        <option value="ascii-1967" selected>ASCII 1967</option>
-                        <option value="custom">Custom</option>
+                        <option value="ascii" selected>ASCII 1967</option>
+                        <option value="preset20180319">20180319</option>
                     </select>
                 </div>
                 <div class="input-group mb-3">
                     <label class="input-group-text" for="character-text">Characters:</label>
-                    <input type="text" class="form-control" id="character-text" value="" disabled>
+                    <input type="text" class="form-control" id="character-text" value="">
                 </div>
 
             </div>
             
         </div>
         
-
         <div class="row justify-content-center">
             <div class="col-lg-6 col-md-10 col-12 mt-5">
 
@@ -211,7 +206,7 @@
                         <label for="fontsize-range" class="form-label">Font Size in <strong>px</strong>:</label>
                     </div>
                     <div class="col">
-                        <input type="range" class="form-range" min="8" max="128" step="1" id="fontsize-range" value="64">
+                        <input type="range" class="form-range" min="8" max="512" step="1" id="fontsize-range" value="64">
                     </div>
                     <div class="col-2">
                         <input type="number" class="form-control form-control-sm"  min="8" max="128" id="fontsize-number" value="64">
@@ -223,10 +218,10 @@
                         <label for="downscale-range" class="form-label">Down Scale:</label>
                     </div>
                     <div class="col">
-                        <input type="range" class="form-range" min="0" max="8" step="1" id="downscale-range" value="4">
+                        <input type="range" class="form-range" min="1" max="16" step="1" id="downscale-range" value="1">
                     </div>
                     <div class="col-2">
-                        <input type="number" class="form-control form-control-sm" min="0" max="8" id="downscale-number" value="4">
+                        <input type="number" class="form-control form-control-sm" min="1" max="16" id="downscale-number" value="1">
                     </div>
                 </div>
 
@@ -235,7 +230,7 @@
                         <label for="padding-range" class="form-label">Padding in <strong>px</strong>:</label>
                     </div>
                     <div class="col">
-                        <input type="range" class="form-range" min="-4" max="16" step="1" id="padding-range" value="8">
+                        <input type="range" class="form-range" min="0" max="16" step="1" id="padding-range" value="8">
                     </div>
                     <div class="col-2">
                         <input type="number" class="form-control form-control-sm" min="-4" max="16" id="padding-number" value="8">
@@ -277,19 +272,38 @@ jumps over the lazy dwarf.
 
         </div>
 
+        <div class="row justify-content-start mt-5">
 
-        <div class="container-lg my-5">
-
-            <div class="row justify-content-start my-5">
-                <div class="col">
-                </div>
+            <div class="col-12">
+                <h4 class="mb-4">ASSETS&ensp;|&ensp;Glyph Atlas and Font Description.</h4>
             </div>
-        
+
+            <div class="col-md-6 col-sm-10 col-12 input-group mb-4">
+                <label class="input-group-text" for="output-atlas">Glyph Atlas</label>
+                <input type="text" class="form-control" id="output-atlas" readonly placeholder="resource">
+                <button class="btn btn-outline-secondary" type="button" id="copy-atlas">copy</button>
+            </div>
+
+            <div class="col-md-6 col-sm-10 col-12 input-group mb-4">
+                <label class="input-group-text" for="output-description">Font Description</label>
+                <input type="text" class="form-control" id="output-description" readonly placeholder="resource">
+                <button class="btn btn-outline-secondary" type="button" id="copy-description">copy</button>
+            </div>
+    
         </div>
-        
 
     </div>
 
+
+    <div class="container-lg my-5">
+
+        <div class="row justify-content-start my-5">
+            <div class="col">
+            </div>
+        </div>
+    
+    </div>
+    
 
     
     <script src="https://cdn.jsdelivr.net/npm/rxjs@latest/bundles/rxjs.umd.min.js"></script>
@@ -298,7 +312,7 @@ jumps over the lazy dwarf.
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/webgl-operate@latest/dist/webgl-operate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/webgl-operate@0.7.2/dist/webgl-operate.min.js"></script>
 
     <script src = "index.js"></script>
 
@@ -322,7 +336,6 @@ jumps over the lazy dwarf.
 
             static post(route, params, data) {
                 const query = new URLSearchParams(params).toString();
-                console.log(query);
                 return fetch(API_URL + route + '?' + query, {
                     'method': 'post',
                     'body': data,
@@ -357,15 +370,40 @@ jumps over the lazy dwarf.
                 const data = new FormData(/*{ maxDataSize: MAX_IMAGE_SIZE }*/);
                 data.append('file', font.data, font.name);
 
-                console.log('DETAILS:',  mimeType, uploadName, uploadFormat);
-                console.log('DATA:', data);
-
                 return api.post('/fonts', {
                     identifier: uploadName,
                     format: uploadFormat,
                 }, data);
 
             };
+
+            static postAsset(identifier, parameters) {
+                
+                const data = JSON.stringify({
+                    distfield: 'parabola',
+                    packing: step3.packingAlgorithm.val(),
+                    glyph: '',
+                    charcode: step2.characterText.val(),
+                    preset: step2.characterSet.val(),
+                    fontsize: step3.fontsizeNumber.val(),
+                    padding: step3.paddingNumber.val(),
+                    downsampling_factor: step3.downscaleNumber.val(),
+                    downsampling: 'average', // 'center', 'average', 'min'
+                    dynamicrange: [-20.0, 20.0 ]
+                });
+
+                return api.post(`/fonts/${identifier}`, {
+                    force: true,
+                }, data);
+            }
+
+            static async getAsset(identifier, parameters) {
+
+                let response = await api.postAsset(identifier, parameters).then(
+                    async (response) => { return await response.json(); });
+
+                return response;
+            }
 
         };
 
@@ -422,28 +460,33 @@ jumps over the lazy dwarf.
             uploadFont: $('#upload-font'),
         };
 
+        const updateFonts = async () => {
+
+            let fonts = await api.getFonts().then(async (response) => { return await response.json(); });
+
+            step1.inputFonts.children().each(function() {
+                $(this).remove();
+            });
+            fonts.sort((a, b) => a.identifier > b.identifier);
+            fonts.forEach((font /* object */) => {
+                const config = {
+                    value: font.identifier, // API_URL + font.url,
+                    text: font.identifier,
+                };
+                step1.inputFonts.append($('<option>', config));
+            });
+
+            update();
+        };
+
         const bindStep1Controls = () => {
 
             step1.refreshFonts.on('click', async () => {
-
-                let fonts = await api.getFonts().then(async (response) => { return await response.json(); });
-                console.log(fonts);
-
-                step1.inputFonts.children().each(function() {
-                    $(this).remove();
-                });
-                fonts.forEach((font /* object */) => {
-                    const config = {
-                        value: API_URL + font.url,
-                        text: font.identifier,
-                    };
-                    step1.inputFonts.append($('<option>', config));
-                });
+                updateFonts();
             });
 
-            step1.inputFonts.on('click', (e) => {
-                console.log(e.target.value);
-                // renderer.change()
+            step1.inputFonts.on('input', (e) => {
+                update();
             });
 
             step1.uploadFile.on('input', (e) => {
@@ -466,13 +509,21 @@ jumps over the lazy dwarf.
 
 
         const step2 = {
-            
+            distanceType: $('#distance-type'),
+            mapType: $('#map-type'),
+            bitness: $('#bitness'),
 
+            characterSet: $('#character-set'),
+            characterText: $('#character-text'),
         };
 
         const bindStep2Controls = () => {
         
-          
+            step2.distanceType.on('input', () => { dispatchUpdate(); });
+            step2.mapType.on('input', () => { dispatchUpdate(); });
+            step2.bitness.on('input', () => { dispatchUpdate(); });
+            step2.characterSet.on('input', () => { dispatchUpdate(); });
+            step2.characterText.on('input', () => { dispatchUpdate(); });
         }
 
         
@@ -523,6 +574,17 @@ jumps over the lazy dwarf.
             previewText.trigger('input');
         }
 
+        const step5 = {
+            outputAtlas: $('#output-atlas'),
+            copyAtlas: $('#copy-atlas'),
+            outputDescription: $('#output-description'),
+            copyDescription: $('#copy-description'),
+        }
+
+        const bindStep5Controls = () => {
+
+        }
+
 
         // Initialize and Bind
 
@@ -557,6 +619,8 @@ jumps over the lazy dwarf.
             bindStep2Controls();
             bindStep3Controls();
             bindStep4Controls();
+
+            updateFonts();
         }
 
 
@@ -564,13 +628,23 @@ jumps over the lazy dwarf.
 
         let updateTimer = null;
         let updateTime = 0;
-        let updateDelay = 4000;
+        let updateDelay = 2000;
         
-        const update = () => {
+        const update = async () => {
             clearTimeout(updateTimer);
             updateTimer = null;
 
-            // actual API call dispatches
+            const identifier = step1.inputFonts.val();
+            const parameters = { };
+
+            const response =  await api.getAsset(identifier, parameters);
+            renderer.changeFont(
+                API_URL + response.url + '/fontdescription',
+                API_URL + response.url + '/distancefield'
+            );
+
+            step5.outputAtlas.val(API_URL + response.url + '/distancefield');
+            step5.outputDescription.val(API_URL + response.url + '/fontdescription');
         }
 
         const dispatchUpdate = () => {
