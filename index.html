@@ -23,6 +23,15 @@
         strong {
             font-weight: 700 !important;
         }
+
+        #spinner {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 2rem;
+            height: 2rem;
+            z-index: 2;
+        }
     </style>
 
 </head>
@@ -41,8 +50,13 @@
         <div class="row mt-3">
             <div class="col">
                 <div class="ratio ratio-21x9">
-                    <canvas class="embed-responsive-item w-100" id="canvas"></canvas>
-                </div>       
+                    <canvas class="embed-responsive-item w-100" id="canvas">
+                    </canvas>
+                    <div class="spinner-border text-light fixed-bottom" role="status" id="spinner">
+                        <span class="visually-hidden">loading</span>
+                    </div>
+                </div>
+                
             </div>
         </div>
 
@@ -67,9 +81,9 @@
                     <label class="input-group-text" for="super-sampling">Super Sampling</label>
                     <select class="form-select" id="super-sampling">
                         <option value="64">Golden Set, 64 Samples</option>
-                        <option value="8">Golden Set, 8 Samples</option>
+                        <option value="8" selected>Golden Set, 8 Samples</option>
                         <option value="1024">Random, 256 Samples</option>
-                        <option value="1" selected>None, 1 Sample</option>
+                        <option value="1">None, 1 Sample</option>
                     </select>
                 </div>
             </div>
@@ -166,14 +180,15 @@
                 </div>
 
                 <div class="input-group mb-2">
-                    <label class="input-group-text" for="character-set">Character Set:</label>
+                    <label class="input-group-text" for="character-set">Character Set</label>
                     <select class="form-select" id="character-set">
                         <option value="ascii" selected>ASCII 1967</option>
                         <option value="preset20180319">20180319</option>
+                        <option value="">Only Custom Characters</option>
                     </select>
                 </div>
                 <div class="input-group mb-3">
-                    <label class="input-group-text" for="character-text">Characters:</label>
+                    <label class="input-group-text" for="character-text">Characters</label>
                     <input type="text" class="form-control" id="character-text" value="">
                 </div>
 
@@ -189,7 +204,7 @@
                 
                 <div class="mb-3 row">
                     <div class="col-3 text-end">
-                        <label for="packing-algorithm" class="form-label">Packing Algorithm:</label>
+                        <label for="packing-algorithm" class="form-label">Packing</label>
                     </div>
                     <div class="col">
                         <!-- fill up automatically based on API capabilities -->
@@ -201,39 +216,72 @@
                 </div>
 
 
-                <div class="row mb-3">
+                <div class="row">
                     <div class="col-3 text-end">
-                        <label for="fontsize-range" class="form-label">Font Size in <strong>px</strong>:</label>
+                        <label for="fontsize-range" class="form-label">Font Size in <strong>px</strong></label>
+                        
                     </div>
                     <div class="col">
-                        <input type="range" class="form-range" min="8" max="512" step="1" id="fontsize-range" value="64">
+                        <input type="range" class="form-range" min="8" max="1024" step="8" id="fontsize-range" value="512">
                     </div>
                     <div class="col-2">
-                        <input type="number" class="form-control form-control-sm"  min="8" max="128" id="fontsize-number" value="64">
+                        <input type="number" class="form-control form-control-sm"  min="8" max="1024" step="8" id="fontsize-number" value="512">
+                    </div>
+                </div>
+                <div class="row justify-content-end mb-3">
+                    <div class="col-9">
+                        <small class="text-muted">Font size for the glyph bitmask size used for distance map calculation.</small>
                     </div>
                 </div>
 
-                <div class="row mb-3">
+                <div class="row">
                     <div class="col-3 text-end">
-                        <label for="downscale-range" class="form-label">Down Scale:</label>
+                        <label for="downscale-range" class="form-label">Down Scale in <strong>2<sup>&times;</sup></strong></label>
                     </div>
                     <div class="col">
-                        <input type="range" class="form-range" min="1" max="16" step="1" id="downscale-range" value="1">
+                        <input type="range" class="form-range" min="0" max="8" step="1" id="downscale-range" value="4">
                     </div>
                     <div class="col-2">
-                        <input type="number" class="form-control form-control-sm" min="1" max="16" id="downscale-number" value="1">
+                        <input type="number" class="form-control form-control-sm" min="1" max="8" id="downscale-number" value="4">
+                    </div>
+                </div>
+                <div class="row justify-content-end mb-3">
+                    <div class="col-9">
+                        <small class="text-muted">Exponent for a power-of-two factor used to downscale the glyph atlas.</small>
                     </div>
                 </div>
 
-                <div class="row mb-3">
+                <div class="row">
                     <div class="col-3 text-end">
-                        <label for="padding-range" class="form-label">Padding in <strong>px</strong>:</label>
+                        <label for="padding-range" class="form-label">Padding in <strong>px</strong></label>
                     </div>
                     <div class="col">
-                        <input type="range" class="form-range" min="0" max="16" step="1" id="padding-range" value="8">
+                        <input type="range" class="form-range" min="0" max="16" step="1" id="padding-range" value="4">
                     </div>
                     <div class="col-2">
-                        <input type="number" class="form-control form-control-sm" min="-4" max="16" id="padding-number" value="8">
+                        <input type="number" class="form-control form-control-sm" min="0" max="16" step="1" id="padding-number" value="4">
+                    </div>
+                </div>
+                <div class="row justify-content-end mb-3">
+                    <div class="col-9">
+                        <small class="text-muted">Targeted padding (equal for trbl) in pixel for the down scaled glyph atlas.</small>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-3 text-end">
+                        <label for="distance-range" class="form-label">Distance in <strong>px</strong></label>
+                    </div>
+                    <div class="col">
+                        <input type="range" class="form-range" min="1" max="128" step="1" id="distance-range" value="8">
+                    </div>
+                    <div class="col-2">
+                        <input type="number" class="form-control form-control-sm" min="1" max="128" step="1" id="distance-number" value="8">
+                    </div>
+                </div>
+                <div class="row justify-content-end mb-3">
+                    <div class="col-9">
+                        <small class="text-muted">Range the distance of each glyphs distance map is normalized to.</small>
                     </div>
                 </div>
 
@@ -246,7 +294,7 @@
         
                 <div class="row mb-3">
                     <div class="col-3 text-end">
-                        <label for="padding-range" class="form-label">API Cooldown:</label>
+                        <label for="padding-range" class="form-label">API Cooldown</label>
                     </div>
                     <div class="col">
                         <div class="progress mt-1" style="height: 1.5em;">
@@ -257,7 +305,7 @@
 
                 <div class="row mb-3">
                     <div class="col-3 text-end">
-                        <label for="character-whitelist" class="form-label">Preview Text:</label>
+                        <label for="character-whitelist" class="form-label">Preview Text</label>
                     </div>
                     <div class="col-9">
                         <textarea class="form-control" id="preview-text" rows="4">
@@ -268,29 +316,45 @@ jumps over the lazy dwarf.
                     </div>
                 </div>
 
+                <div class="row mb-2">
+                    <div class="col-3 text-end">
+                        <label class="form-label" for="output-atlas">Glyph Atlas</label>
+                    </div>
+                    <div class="col-9">
+                        <div class="input-group input-group-sm">
+                            <input type="text" class="form-control" id="output-atlas" readonly placeholder="resource">
+                            <button class="btn btn-outline-secondary" type="button" data-clipboard-target="#output-atlas" id="copy-atlas">copy</button>
+                            <a href="#" class="btn btn-outline-secondary" type="button" id="download-atlas">download</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-3 text-end">
+                        <label class="form-label" for="output-font">Font Description</label>
+                    </div>
+                    <div class="col-9">
+                        <div class="input-group input-group-sm">
+                            <input type="text" class="form-control" id="output-font" readonly placeholder="resource">
+                            <button class="btn btn-outline-secondary" type="button" data-clipboard-target="#output-font" id="copy-font">copy</button>
+                            <a href="#" class="btn btn-outline-secondary" type="button" id="download-font">download</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-3 text-end">
+                        <label class="form-label" for="output-size">Font Size</label>
+                    </div>
+                    <div class="col-9">
+                        <label class="form-label" id="output-size">#</label>
+                    </div>
+                </div>
+
             </div>
 
         </div>
 
-        <div class="row justify-content-start mt-5">
-
-            <div class="col-12">
-                <h4 class="mb-4">ASSETS&ensp;|&ensp;Glyph Atlas and Font Description.</h4>
-            </div>
-
-            <div class="col-md-6 col-sm-10 col-12 input-group mb-4">
-                <label class="input-group-text" for="output-atlas">Glyph Atlas</label>
-                <input type="text" class="form-control" id="output-atlas" readonly placeholder="resource">
-                <button class="btn btn-outline-secondary" type="button" id="copy-atlas">copy</button>
-            </div>
-
-            <div class="col-md-6 col-sm-10 col-12 input-group mb-4">
-                <label class="input-group-text" for="output-description">Font Description</label>
-                <input type="text" class="form-control" id="output-description" readonly placeholder="resource">
-                <button class="btn btn-outline-secondary" type="button" id="copy-description">copy</button>
-            </div>
-    
-        </div>
 
     </div>
 
@@ -305,14 +369,11 @@ jumps over the lazy dwarf.
     </div>
     
 
-    
-    <script src="https://cdn.jsdelivr.net/npm/rxjs@latest/bundles/rxjs.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script>
-    <!--<script src="https://cdn.jsdelivr.net/npm/popper.js@1.15.0/dist/umd/popper.min.js"></script>-->
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/webgl-operate@0.7.2/dist/webgl-operate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js" integrity="sha256-Eb6SfNpZyLYBnrvqg4KFxb6vIRg+pLg9vU5Pv5QTzko=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/rxjs@6.6.6/bundles/rxjs.umd.min.js" integrity="sha256-IeJkMgRGVqgePhicItb++JTO2hKgeuNN4TwI8OvrfrU=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.min.js" integrity="sha256-g86N7Hh/s86sr3pbYfNkdaio7FJXF6q9c91uJVItKLg=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/webgl-operate@0.7.2/dist/webgl-operate.js" integrity="sha256-03fddM+OYS7zjp/qcOAJec5Ua63aIYzphCYYiIJAJyA=" crossorigin="anonymous"></script>
 
     <script src = "index.js"></script>
 
@@ -322,7 +383,7 @@ jumps over the lazy dwarf.
             $('#file-api-missing-alert').toggleClass('d-none');
         }
 
-        const API_URL = 'http://localhost:8192'; //'https://fonts.varg.dev';
+        const API_URL = 'https://fonts.varg.dev'; //'http://localhost:8192';
 
         class api {
 
@@ -382,31 +443,26 @@ jumps over the lazy dwarf.
                 const data = JSON.stringify({
                     distfield: 'parabola',
                     packing: step3.packingAlgorithm.val(),
-                    glyph: '',
-                    charcode: step2.characterText.val(),
+                    glyph: step2.characterText.val(),
+                    charcode: '',
                     preset: step2.characterSet.val(),
                     fontsize: step3.fontsizeNumber.val(),
                     padding: step3.paddingNumber.val(),
-                    downsampling_factor: step3.downscaleNumber.val(),
-                    downsampling: 'average', // 'center', 'average', 'min'
-                    dynamicrange: [-20.0, 20.0 ]
+                    downsampling_factor: 1 << step3.downscaleNumber.val(),
+                    downsampling: 'center', // 'center', 'average', 'min'
+                    dynamicrange: [-step3.distanceNumber.val(), step3.distanceNumber.val() ]
                 });
 
                 return api.post(`/fonts/${identifier}`, {
-                    force: true,
+                    // force: true,
                 }, data);
             }
 
             static async getAsset(identifier, parameters) {
-
-                let response = await api.postAsset(identifier, parameters).then(
-                    async (response) => { return await response.json(); });
-
-                return response;
+                return api.postAsset(identifier, parameters).then((response) => response.json());
             }
 
         };
-
 
  
         let canvas = null;
@@ -414,6 +470,9 @@ jumps over the lazy dwarf.
         let controller = null;
         let gl = null;
         let renderer = null;
+
+        const spinner = $('#spinner');
+        spinner.hide();
 
 
         // Step-0 Controls - Preview
@@ -507,6 +566,7 @@ jumps over the lazy dwarf.
             });
         }
 
+        // Step 2 Controls - Configure Atlas
 
         const step2 = {
             distanceType: $('#distance-type'),
@@ -526,6 +586,8 @@ jumps over the lazy dwarf.
             step2.characterText.on('input', () => { dispatchUpdate(); });
         }
 
+
+        // Step 3 Controls - Configure Glpyhs
         
         const step3 = {
             packingAlgorithm: $('#packing-algorithm'),
@@ -538,6 +600,9 @@ jumps over the lazy dwarf.
 
             paddingRange: $('#padding-range'),
             paddingNumber: $('#padding-number'),
+
+            distanceRange: $('#distance-range'),
+            distanceNumber: $('#distance-number'),
         };
 
         const bindStep3Controls = () => {
@@ -559,11 +624,22 @@ jumps over the lazy dwarf.
                 dispatchUpdate(); step3.paddingNumber.val(e.target.value); });
             step3.paddingNumber.on('input', (e) => {
                 dispatchUpdate(); step3.paddingRange.val(e.target.value); });
+
+            step3.distanceRange.on('input', (e) => {
+                dispatchUpdate(); step3.distanceNumber.val(e.target.value); });
+            step3.distanceNumber.on('input', (e) => {
+                dispatchUpdate(); step3.distanceRange.val(e.target.value); });
         }
 
         
         const step4 = {
-
+            outputAtlas: $('#output-atlas'),
+            copyAtlas: $('#copy-atlas'),
+            downloadAtlas: $('#download-atlas'),
+            outputFont: $('#output-font'),
+            copyFont: $('#copy-font'),
+            downloadFont: $('#download-font'),
+            outputSize: $('#output-size'),
         }
         
         const bindStep4Controls = () => {
@@ -572,17 +648,9 @@ jumps over the lazy dwarf.
             previewText.on('input', (e) => renderer.previewText(e.target.value));
 
             previewText.trigger('input');
-        }
 
-        const step5 = {
-            outputAtlas: $('#output-atlas'),
-            copyAtlas: $('#copy-atlas'),
-            outputDescription: $('#output-description'),
-            copyDescription: $('#copy-description'),
-        }
-
-        const bindStep5Controls = () => {
-
+            new ClipboardJS('#copy-font');
+            new ClipboardJS('#copy-atlas');
         }
 
 
@@ -636,15 +704,25 @@ jumps over the lazy dwarf.
 
             const identifier = step1.inputFonts.val();
             const parameters = { };
+            
+            spinner.show();
+            api.getAsset(identifier, parameters).then((response) => {;
 
-            const response =  await api.getAsset(identifier, parameters);
-            renderer.changeFont(
-                API_URL + response.url + '/fontdescription',
-                API_URL + response.url + '/distancefield'
-            );
+                const fontdescription = API_URL + response.url + '/fontdescription';
+                const fontatlas = API_URL + response.url + '/distancefield';
+                renderer.changeFont(fontdescription, fontatlas).then((size) => {
 
-            step5.outputAtlas.val(API_URL + response.url + '/distancefield');
-            step5.outputDescription.val(API_URL + response.url + '/fontdescription');
+                    step4.outputFont.val(fontdescription);
+                    step4.outputAtlas.val(fontatlas);
+                    step4.outputSize.html(`${size[0]} <sup>px</sup> &times; ${size[1]} <sup>px</sup>`);
+    
+                    step4.downloadFont.attr('href', fontdescription);
+                    step4.downloadAtlas.attr('href', fontatlas);
+
+                    spinner.hide();
+                });
+                
+            }).catch(() => { spinner.hide(); });
         }
 
         const dispatchUpdate = () => {

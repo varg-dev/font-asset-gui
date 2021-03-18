@@ -97,6 +97,7 @@ class Renderer extends gloperate.Renderer {
         this._blit.readBuffer = gl2facade.COLOR_ATTACHMENT0;
         this._blit.target = this._defaultFBO;
         this._blit.drawBuffer = gl.BACK;
+        this._blit.filter = gl.LINEAR;
 
 
         // setup point rendering
@@ -105,7 +106,7 @@ class Renderer extends gloperate.Renderer {
             -0.8, +0.25, -1.0,  0.000, 0.533, 0.808,  16.0,
             -1.0, +0.25, -0.8,  0.792, 0.000, 0.365,  16.0,
             +2.0,  0.00, +2.0,  0.792, 0.792, 0.000,  16.0,
-            -0.8, -0.80, +0.8,  0.000, 0.792, 0.365,  16.0,
+            -0.8, -0.80, -0.8,  0.000, 0.792, 0.365,  16.0,
             ]);
 
         this._lines = new Float32Array([ // x, y, z, r, g, b,
@@ -115,8 +116,8 @@ class Renderer extends gloperate.Renderer {
             -1.0, +0.25, +0.8,  0.792, 0.000, 0.365,
             -0.81, -0.80, +0.81,  0.000, 0.792, 0.365,
             -0.81, -0.80, -0.81,  0.000, 0.792, 0.365,
-            -0.81, -0.80, +0.81,  0.000, 0.792, 0.365,
-            +0.81, -0.80, +0.81,  0.000, 0.792, 0.365,
+            -0.81, -0.80, -0.81,  0.000, 0.792, 0.365,
+            +0.81, -0.80, -0.81,  0.000, 0.792, 0.365,
             ]);
     
 
@@ -258,13 +259,20 @@ class Renderer extends gloperate.Renderer {
                 uniform mat4 u_viewProjection;
                 uniform vec2 u_ndcOffset;
 
+                uniform sampler2D u_glyphs;
+
                 out vec2 v_uv;
 
                 void main()
                 {
                     v_uv = (a_vertex.xz + 1.0) * 0.5;
 
-                    vec4 vertex = vec4(a_vertex, 1.0) * vec4(0.8, 1.0, 0.8, 1.0) - vec4(0.0, 0.8, 0.0, 0.0);
+                    vec2 size = vec2(textureSize(u_glyphs, 0));
+                    vec2 scale = max(vec2(1.0), size.xy / size.yx);
+
+                    vec4 vertex = vec4(a_vertex, 1.0) * vec4(0.8 * scale.x, 1.0, 0.8 * scale.y, 1.0);
+                    vertex -= vec4(-0.8 * (scale.x - 1.0), 0.8, -0.8 * (scale.y - 1.0), 0.0);
+
                     vertex = u_viewProjection * vertex;
                     vertex.xy = u_ndcOffset * vec2(vertex.w) + vertex.xy;
 
@@ -525,11 +533,10 @@ class Renderer extends gloperate.Renderer {
             this._camera.viewport = this._canvasSize;
         }
 
-        if (this._altered.canvasSize) {
-            this._zoomDstBounds = gloperate.vec4.fromValues(
-                this._canvasSize[0] * (1.0 - 0.25), this._canvasSize[1] * (0.25 * this._camera.aspect),
-                this._canvasSize[0] * (1.0 - 0.02), this._canvasSize[1] * (0.02 * this._camera.aspect));
-        }
+        const aspect = this._fontFace ? this._fontFace.glyphTextureExtent[0] / this._fontFace.glyphTextureExtent[1] : 1.0;
+        this._zoomDstBounds = gloperate.vec4.fromValues(
+            this._canvasSize[0] * (1.0 - (aspect >= 1.0 ? 0.41 : 0.205)), this._canvasSize[1] * ((aspect <= 1.0 ? 0.41 : 0.205) * this._camera.aspect),
+            this._canvasSize[0] * (1.0 - 0.02), this._canvasSize[1] * (0.02 * this._camera.aspect));
 
         if (this._altered.clearColor) {
             this._defaultFBO.clearColor(this._clearColor);
@@ -764,11 +771,11 @@ class Renderer extends gloperate.Renderer {
         // this.invalidate();
     }
   
-    changeFont(descriptionUrl, distanceFieldUrl) {
+    async changeFont(descriptionUrl, distanceFieldUrl) {
 
         const gl2facade = this._context.gl2facade;
 
-        gloperate.FontFace.fromFiles(descriptionUrl, new Map([[ 0, distanceFieldUrl ]]), context)
+        return await gloperate.FontFace.fromFiles(descriptionUrl, new Map([[ 0, distanceFieldUrl ]]), context)
             .then((fontFace) => {
 
                 this._fontFace = fontFace;
@@ -784,27 +791,11 @@ class Renderer extends gloperate.Renderer {
                 }
                 this._labelPass.update();
                 this.invalidate(true);
+
+                return fontFace.glyphTextureExtent;
             })
             .catch((reason) => gloperate.auxiliaries.log(
                 gloperate.auxiliaries.LogLevel.Error, reason));
-
-
-
-        // var fr = new FileReader();
-        // fr.onload = () => {
-        //     // this._fontTexture.load(fr.result).then(() => {
-        //     //     const gl = this._context.gl;
-
-        //     //     this._fontTexture.bind(gl.TEXTURE0);
-        //     //     this._fontTexture.wrap(gl.REPEAT, gl.REPEAT, false, false);
-        //     //     this._fontTexture.filter(gl.LINEAR, gl.LINEAR, false, false); 
-
-        //     //     this._debug = false;
-
-        //     //     callback();
-        //     // });
-        // };
-        // fr.readAsDataURL(file);
     }
 
 }
